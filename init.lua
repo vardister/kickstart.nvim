@@ -91,7 +91,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -324,6 +324,70 @@ require('lazy').setup({
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       },
     },
+  },
+
+  {
+    'lervag/vimtex',
+    ft = { 'tex', 'latex' },
+    config = function()
+      -- Set latexmk with LuaLaTeX as the default LaTeX compiler
+      vim.g.vimtex_compiler_method = 'latexmk'
+      vim.g.vimtex_compiler_latexmk = {
+        executable = 'latexmk',
+        options = {
+          '-pdf',
+          '-pdflatex=lualatex',
+          '-synctex=1',
+          '-interaction=nonstopmode',
+          '-file-line-error',
+          '-shell-escape',
+          '-verbose',
+          '-outdir=build',
+        },
+        build_dir = 'build',
+        callback = 1,
+        continuous = 1,
+      }
+
+      -- Skim PDF viewer configuration
+      vim.g.vimtex_view_method = 'skim'
+      vim.g.vimtex_view_skim_sync = 1 -- Enable forward search after compilation
+      vim.g.vimtex_view_skim_activate = 1 -- Auto-activate Skim when viewing PDF
+      
+      -- Path to Skim.app
+      vim.g.vimtex_view_skim_app = '/Applications/Skim.app'
+
+      -- Configure inverse search (from Skim back to Neovim)
+      -- This enables "Command + Shift + Click" in Skim to jump to the corresponding position in Neovim
+      -- You may need to configure Skim preferences: Sync > PDF-TeX Sync support > Preset: Neovim
+
+      -- Other useful VimTeX settings
+      vim.g.vimtex_quickfix_mode = 0 -- Disable quickfix auto-open
+      vim.g.vimtex_syntax_enabled = 1 -- Enable syntax highlighting
+      vim.g.vimtex_indent_enabled = 1 -- Enable indentation
+      vim.g.vimtex_complete_enabled = 1 -- Enable completion
+      vim.g.vimtex_view_automatic = 1 -- Automatically open PDF after compilation
+      vim.g.vimtex_fold_enabled = 1 -- Enable folding of sections and environments
+      
+      -- LaTeX-specific keymaps
+      vim.api.nvim_create_autocmd('FileType', {
+        pattern = {'tex', 'latex'},
+        callback = function()
+          -- Compile document
+          vim.keymap.set('n', '<leader>lc', '<cmd>VimtexCompile<CR>', {buffer = true, desc = 'Compile LaTeX document'})
+          -- View PDF
+          vim.keymap.set('n', '<leader>lv', '<cmd>VimtexView<CR>', {buffer = true, desc = 'View LaTeX PDF'})
+          -- Clean auxiliary files
+          vim.keymap.set('n', '<leader>lC', '<cmd>VimtexClean<CR>', {buffer = true, desc = 'Clean LaTeX auxiliary files'})
+          -- Show compiler errors
+          vim.keymap.set('n', '<leader>le', '<cmd>VimtexErrors<CR>', {buffer = true, desc = 'Show LaTeX errors'})
+          -- Toggle table of contents
+          vim.keymap.set('n', '<leader>lt', '<cmd>VimtexTocToggle<CR>', {buffer = true, desc = 'Toggle LaTeX TOC'})
+          -- Reload VimTeX
+          vim.keymap.set('n', '<leader>lR', '<cmd>VimtexReload<CR>', {buffer = true, desc = 'Reload VimTeX'})
+        end
+      })
+    end,
   },
 
   -- NOTE: Plugins can specify dependencies.
@@ -628,7 +692,7 @@ require('lazy').setup({
         -- But for many setups, the LSP (`ts_ls`) will work just fine
         -- ts_ls = {},
         --
-
+        julials = {},
         lua_ls = {
           -- cmd = { ... },
           -- filetypes = { ... },
@@ -639,7 +703,8 @@ require('lazy').setup({
                 callSnippet = 'Replace',
               },
               -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-              -- diagnostics = { disable = { 'missing-fields' } },
+              diagnostics = { disable = { 'missing-fields' } },
+              single_file_support = true, -- Support for single Lua files
             },
           },
         },
@@ -899,7 +964,7 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'latex', 'bibtex' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
